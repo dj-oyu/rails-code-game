@@ -16,6 +16,30 @@ class CodeEvaluator
         # 問題の初期コードを評価（変数・メソッド定義を反映）
         binding = TOPLEVEL_BINDING.dup
         if initial_code.present?
+          # putsの引数変数を抽出し、ユーザーコード末尾でnil上書き
+          begin
+            require_relative 'code_parser'
+            symbols = CodeParser.extract_symbols(initial_code)
+            if symbols.is_a?(Hash)
+              # putsの引数
+              if symbols[:puts_args].is_a?(Array)
+                symbols[:puts_args].each do |var|
+                  user_code = "#{var} = nil\n" + user_code
+                end
+              end
+              # 末尾の変数評価は長いランダム文字列で上書き
+              require 'securerandom'
+              if symbols[:tail_vars].is_a?(Array)
+                symbols[:tail_vars].each do |var|
+                  rand_str = SecureRandom.hex(32)
+                  user_code = "#{var} = '#{rand_str}'\n" + user_code
+                end
+              end
+            end
+          rescue => e
+            # 解析失敗時は何もしない
+          end
+
           # 初期コードを評価（出力は捨てる）
           capture_stdout_stderr do
             eval(initial_code, binding)
@@ -29,13 +53,18 @@ class CodeEvaluator
         end
         return_value = val
 
-        # 出力が空なら戻り値を文字列化して比較
-        compare_value = output.strip.empty? ? val.to_s.strip : output.strip
-
-        if compare_value == expected_output.strip
-          result = "success"
-        else
+        # お題の期待出力が空文字列なら、ユーザーの出力も完全に空でなければfail
+        if expected_output.strip.empty? && !output.empty?
           result = "fail"
+        else
+          # 出力が空なら戻り値を文字列化して比較
+          compare_value = output.strip.empty? ? val.to_s.strip : output.strip
+
+          if compare_value == expected_output.strip
+            result = "success"
+          else
+            result = "fail"
+          end
         end
       end
     rescue Timeout::Error

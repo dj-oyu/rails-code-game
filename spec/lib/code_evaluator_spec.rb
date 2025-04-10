@@ -9,6 +9,43 @@ RSpec.describe CodeEvaluator do
     result = described_class.evaluate(user_code, expected_output, timeout_sec: 2)
     expect(result[:result]).to eq("success")
   end
+
+  it "お題コードにputs無しで末尾に変数評価だけの場合、ユーザーがputsしても正解にならない" do
+    initial_code = <<~RUBY
+      x = 10
+      y = 5
+      expr = x + y
+      # puts無し、末尾に変数評価だけ
+      expr
+    RUBY
+
+    user_code = "puts expr"
+    # お題コードはputsしないので期待出力は空文字
+    result = described_class.evaluate(user_code, "", initial_code: initial_code, timeout_sec: 2)
+    # exprはnilで上書きされているのでfailかerrorになるはず
+    expect(result[:result]).to eq("fail").or eq("error")
+    if result[:result] == "error"
+      expect(result[:output]).to include("NameError").or include("nil")
+    end
+  end
+
+  it "お題コード末尾の変数評価はユーザーコードで使えない" do
+    initial_code = <<~RUBY
+      x = 10
+      y = 5
+      expr = x + y
+      # 末尾に変数評価
+      expr
+    RUBY
+
+    user_code = "puts expr"
+    result = described_class.evaluate(user_code, "15", initial_code: initial_code, timeout_sec: 2)
+    # exprはnilで上書きされているのでfailかerrorになるはず
+    expect(result[:result]).to eq("fail").or eq("error")
+    if result[:result] == "error"
+      expect(result[:output]).to include("NameError").or include("nil")
+    end
+  end
   
   it "初期コードの変数が利用可能" do
     initial_code = "x = 10; y = 5"
@@ -66,5 +103,17 @@ RSpec.describe CodeEvaluator do
     result = described_class.evaluate(user_code, expected_output, timeout_sec: 2)
     expect(result[:result]).to eq("error")
     expect(result[:output]).to include("NameError")
+  end
+
+  it "お題コードのputs引数の変数はユーザーコードで使えない" do
+    initial_code = "result = 15; puts result"
+    user_code = "puts result"
+    result = described_class.evaluate(user_code, "15", initial_code: initial_code, timeout_sec: 2)
+    # resultはnilで上書きされているので、出力は空 or nil.to_s
+    expect(result[:result]).to eq("fail").or eq("error")
+    # もしerrorならNameErrorのはず
+    if result[:result] == "error"
+      expect(result[:output]).to include("NameError").or include("nil")
+    end
   end
 end
