@@ -6,6 +6,9 @@ class ProblemGenerator
   def self.generate(prompt)
     endpoint = ENV["LLM_API_ENDPOINT"]
     token = ENV["LLM_API_TOKEN"]
+    
+    # 既存の問題を例として取得（最大3件）
+    existing_examples = get_existing_examples(3)
 
     uri = URI.parse(endpoint)
     http = Net::HTTP.new(uri.host, uri.port)
@@ -26,6 +29,19 @@ class ProblemGenerator
       required: ["title", "description", "initial_code", "expected_output"]
     }
 
+    # 既存問題の例を含むプロンプト作成
+    examples_text = ""
+    if existing_examples.any?
+      examples_text = "以下は既存の問題例です。これらとは異なる独創的な問題を作成してください：\n\n"
+      existing_examples.each_with_index do |example, index|
+        examples_text += "例#{index + 1}:\n"
+        examples_text += "タイトル: #{example[:title]}\n"
+        examples_text += "説明: #{example[:description]}\n"
+        examples_text += "初期コード: #{example[:initial_code]}\n"
+        examples_text += "期待出力: #{example[:expected_output]}\n\n"
+      end
+    end
+
     system_prompt = <<~PROMPT
       あなたはRubyのコード問題を作成するAIです。
       以下のJSON Schemaに従い、冗長なコード問題をJSONで返してください。
@@ -40,6 +56,11 @@ class ProblemGenerator
       5. 使用するメソッドや変数名を明確に指定してください
       6. 問題文には「標準出力に答えを出力してください」と明記してください
       7. 問題文には「puts」を使うことを明記してください
+      8. 既存の問題と重複しない、独創的な問題を作成してください
+      9. 問題のテーマを多様にしてください（配列操作、文字列処理、数値計算、ハッシュ操作など）
+      10. 実用的なプログラミング課題を意識してください
+
+      #{examples_text}
     PROMPT
 
     req.body = {
@@ -63,5 +84,26 @@ class ProblemGenerator
     body = JSON.parse(res.body)
     content = body.dig("choices", 0, "message", "content")
     JSON.parse(content)
+  end
+  
+  # 既存の問題を取得するメソッド
+  def self.get_existing_examples(limit = 3)
+    return [] unless defined?(Problem)
+    
+    # ランダムに問題を取得
+    problems = Problem.order("RANDOM()").limit(limit)
+    
+    problems.map do |problem|
+      {
+        title: problem.title,
+        description: problem.description,
+        initial_code: problem.initial_code,
+        expected_output: problem.expected_output
+      }
+    end
+  rescue => e
+    # モデルが存在しない場合やDBエラーの場合は空配列を返す
+    Rails.logger.error "Failed to get existing examples: #{e.message}"
+    []
   end
 end

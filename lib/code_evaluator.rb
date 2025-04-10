@@ -29,7 +29,8 @@ class CodeEvaluator
     rescue Timeout::Error
       result = "timeout"
     rescue SyntaxError => e
-      output = "#{e.class}: #{e.message}\n#{e.backtrace&.join("\n")}"
+      # 簡潔なエラーメッセージを生成（ディレクトリパスを含まない）
+      output = "#{e.class}: #{e.message}"
       result = "syntax_error"
       error_log = {
         error_type: "syntax_error",
@@ -40,7 +41,8 @@ class CodeEvaluator
         timestamp: Time.now.iso8601
       }
     rescue Exception => e
-      output = "#{e.class}: #{e.message}\n#{e.backtrace&.join("\n")}"
+      # 簡潔なエラーメッセージを生成（ディレクトリパスを含まない）
+      output = "#{e.class}: #{e.message}"
       result = "error"
       error_log = {
         error_type: "runtime_error",

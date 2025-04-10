@@ -6,8 +6,85 @@
 <pre><%= @problem.initial_code %></pre>
 
 <h2>あなたの回答</h2>
-<%= form_with url: answers_path, method: :post do |f| %>
+
+<!-- エラーメッセージ表示領域（固定高さ、スクロール可能） -->
+<div id="error-message" style="color: red; display: none; max-height: 100px; overflow-y: auto; border: 1px solid #ffcccc; background-color: #fff8f8; padding: 10px; margin-bottom: 15px;"></div>
+
+<!-- 結果表示領域（固定高さ、スクロール可能） -->
+<div id="result-message" style="display: none;">
+  <h3>評価結果: <span id="result-status"></span></h3>
+  <h4>出力:</h4>
+  <pre id="result-output" style="max-height: 150px; overflow-y: auto; border: 1px solid #eee; background-color: #f9f9f9; padding: 10px;"></pre>
+  <p><a href="<%= problems_path %>">お題一覧に戻る</a></p>
+</div>
+
+<%= form_with url: answers_path, method: :post, id: "answer-form" do |f| %>
   <%= hidden_field_tag :problem_id, @problem.id %>
   <%= f.text_area :user_code, rows: 10, cols: 80 %><br>
-  <%= f.submit "提出して評価" %>
+  <%= f.submit "提出して評価", id: "submit-button" %>
 <% end %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('answer-form');
+  const errorMessage = document.getElementById('error-message');
+  const resultMessage = document.getElementById('result-message');
+  const resultStatus = document.getElementById('result-status');
+  const resultOutput = document.getElementById('result-output');
+  
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // エラーと結果をクリア
+    errorMessage.style.display = 'none';
+    resultMessage.style.display = 'none';
+    
+    // フォームデータを取得
+    const formData = new FormData(form);
+    
+    // Ajaxリクエスト
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.result === 'syntax_error') {
+        // シンタックスエラーの場合
+        errorMessage.innerHTML = `<strong>構文エラー:</strong> ${formatErrorMessage(data.output)}`;
+        errorMessage.style.display = 'block';
+      } else {
+        // 正常に評価された場合
+        resultStatus.textContent = data.result;
+        resultOutput.textContent = data.output;
+        resultMessage.style.display = 'block';
+      }
+    })
+    .catch(error => {
+      errorMessage.textContent = '通信エラーが発生しました。もう一度お試しください。';
+      errorMessage.style.display = 'block';
+      console.error('Error:', error);
+    });
+  });
+  
+  // エラーメッセージを整形する関数
+  function formatErrorMessage(message) {
+    // 行番号を抽出
+    const lineMatch = message.match(/line (\d+)/);
+    const lineNumber = lineMatch ? lineMatch[1] : null;
+    
+    // エラーメッセージを整形
+    let formattedMessage = message.split("\n")[0]; // 最初の行だけ取得
+    if (lineNumber) {
+      formattedMessage += ` (${lineNumber}行目)`;
+    }
+    
+    return formattedMessage + '<br>コードを修正して再度お試しください。';
+  }
+});
+</script>
