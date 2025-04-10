@@ -1,0 +1,19 @@
+# Rails標準
+/.bundle
+/log
+/tmp
+/storage
+/public/assets
+.byebug_history
+config/master.key
+.env
+node_modules
+*.rbc
+*.sassc
+*.sqlite3
+*.sqlite3-*
+*.swp
+.DS_Store
+coverage
+.idea
+.vscode
