@@ -45,11 +45,6 @@ class CodeParser
     when :def
       # メソッド定義
       symbols[:methods] << sexp[1][1] if sexp[1][0] == :@ident
-    when :call
-      # メソッド呼び出し
-      if sexp[3][0] == :@ident
-        symbols[:methods] << sexp[3][1]
-      end
     when :class
       # クラス定義
       if sexp[1][1][0] == :@const
