@@ -1,5 +1,9 @@
 <h1>お題一覧</h1>
 
+<%= form_with url: generate_problem_path, method: :post do %>
+  <%= submit_tag "問題を自動生成" %>
+<% end %>
+
 <ul>
   <% @problems.each do |problem| %>
     <li>
