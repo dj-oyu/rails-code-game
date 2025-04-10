@@ -9,7 +9,8 @@ class AnswersController < ApplicationController
       problem: problem,
       user_code: user_code,
       result: result[:result],
-      output: result[:output]
+      output: result[:output],
+      error_log: result[:error_log]
     )
 
     @result = result

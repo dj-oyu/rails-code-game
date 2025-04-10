@@ -11,14 +11,27 @@ doc
 
 app
 ├── controllers
+│   ├── application_controller.rb
+│   ├── problems_controller.rb
+│   └── answers_controller.rb
 ├── models
+│   ├── application_record.rb
+│   ├── problem.rb
+│   └── answer.rb
 ├── views
+│   ├── layouts
+│   ├── problems
+│   │   ├── index.html.erb
+│   │   └── show.html.erb
+│   └── answers
+│       └── create.html.erb
 ├── helpers
 ├── jobs
 ├── mailers
 ├── assets
 │   ├── images
 │   └── stylesheets
+
 config
 ├── application.rb
 ├── boot.rb
@@ -28,28 +41,26 @@ config
 ├── locales
 ├── puma.rb
 ├── routes.rb
+├── database.yml
+
 db
+├── migrate
+│   └── *.rb  # マイグレーションファイル
+├── schema.rb
 ├── seeds.rb
-Gemfile
-Rakefile
-README.md
 
 lib
 ├── code_evaluator.rb
+├── problem_generator.rb
 
 spec
 ├── lib
-│   └── code_evaluator_spec.rb
+│   ├── code_evaluator_spec.rb
+│   └── problem_generator_spec.rb
+├── rails_helper.rb
+├── spec_helper.rb
 
-app/controllers
-├── problems_controller.rb
-├── answers_controller.rb
-
-app/views/problems
-├── index.html.erb
-├── show.html.erb
-
-app/views/answers
-├── create.html.erb
-
-config/routes.rb
+.env
+Gemfile
+Rakefile
+README.md

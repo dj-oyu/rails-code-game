@@ -27,4 +27,30 @@ RSpec.describe CodeEvaluator do
     result = described_class.evaluate(user_code, expected_output, timeout_sec: 2)
     expect(result[:result]).to eq("error")
   end
+
+  it "構文エラー: シンタックスエラーならsyntax_error" do
+    user_code = "def foo; end; }"  # 余分な閉じ括弧
+    result = described_class.evaluate(user_code, expected_output, timeout_sec: 2)
+    expect(result[:result]).to eq("syntax_error")
+  end
+
+  it "NoMethodError: メソッド未定義エラーならerror" do
+    user_code = "(1..5).undefined_method"
+    result = described_class.evaluate(user_code, expected_output, timeout_sec: 2)
+    expect(result[:result]).to eq("error")
+    expect(result[:output]).to include("NoMethodError")
+    expect(result[:error_log]).to be_a(String)
+    
+    error_log = JSON.parse(result[:error_log])
+    expect(error_log["error_type"]).to eq("runtime_error")
+    expect(error_log["error_class"]).to eq("NoMethodError")
+    expect(error_log["user_code"]).to eq(user_code)
+  end
+
+  it "NameError: 変数未定義エラーならerror" do
+    user_code = "undefined_variable + 1"
+    result = described_class.evaluate(user_code, expected_output, timeout_sec: 2)
+    expect(result[:result]).to eq("error")
+    expect(result[:output]).to include("NameError")
+  end
 end

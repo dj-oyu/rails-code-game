@@ -7,6 +7,7 @@ class CodeEvaluator
   def self.evaluate(user_code, expected_output, timeout_sec: 3)
     output = ""
     result = "error"
+    error_log = nil
 
     begin
       Timeout.timeout(timeout_sec) do
@@ -27,12 +28,35 @@ class CodeEvaluator
       end
     rescue Timeout::Error
       result = "timeout"
+    rescue SyntaxError => e
+      output = "#{e.class}: #{e.message}\n#{e.backtrace&.join("\n")}"
+      result = "syntax_error"
+      error_log = {
+        error_type: "syntax_error",
+        error_class: e.class.to_s,
+        error_message: e.message,
+        backtrace: e.backtrace,
+        user_code: user_code,
+        timestamp: Time.now.iso8601
+      }
     rescue Exception => e
       output = "#{e.class}: #{e.message}\n#{e.backtrace&.join("\n")}"
       result = "error"
+      error_log = {
+        error_type: "runtime_error",
+        error_class: e.class.to_s,
+        error_message: e.message,
+        backtrace: e.backtrace,
+        user_code: user_code,
+        timestamp: Time.now.iso8601
+      }
     end
 
-    { result: result, output: output }
+    { 
+      result: result, 
+      output: output,
+      error_log: (result == "error" || result == "syntax_error") ? error_log.to_json : nil
+    }
   end
 
   def self.capture_stdout_stderr
