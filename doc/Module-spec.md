@@ -7,6 +7,7 @@
 - **Answer**: 回答管理
 - **CodeEvaluator**: コード評価
 - **ProblemGenerator**: 問題自動生成
+- **CodeParser**: コード解析
 
 ### UI
 - **ProblemsController**: お題表示・管理
@@ -32,6 +33,12 @@
 - LLM APIを使った問題自動生成
 - 構造化出力の制御
 - システムプロンプトの管理
+- 既存問題の例を提供
+
+### CodeParser
+- Rubyコードの静的解析
+- 変数・メソッド・クラスの抽出
+- 問題コードからシンボル情報の提供
 
 ### ProblemsController
 - お題一覧・詳細の表示
@@ -45,24 +52,41 @@
 
 ```
 [ブラウザ] <-> [ProblemsController] <-> [Problem]
-                      |
-                      v
+                      |                   |
+                      |                   v
+                      |              [CodeParser]
+                      v                   
 [ブラウザ] <-> [AnswersController] <-> [Answer]
                       |                   ^
                       v                   |
                 [CodeEvaluator] ----------+
                       
 [ProblemsController] <-> [ProblemGenerator] <-> [Groq API]
+                              ^
+                              |
+                        [CodeEvaluator] (問題検証)
 ```
 
 ## 4. データフロー
 
+### 問題閲覧・回答フロー
 1. ユーザーがお題一覧を閲覧（`ProblemsController#index`）
 2. ユーザーがお題詳細を閲覧（`ProblemsController#show`）
+   - `CodeParser`が問題コードから変数・メソッド情報を抽出
+   - 抽出された情報がヒントとして表示される
 3. ユーザーが回答を提出（`AnswersController#create`）
 4. 回答が`CodeEvaluator`で評価される
+   - 問題コードが先に評価され、変数・メソッドが環境に読み込まれる
+   - ユーザーコードが評価され、出力と戻り値が捕捉される
 5. 評価結果が`Answer`に保存される
 6. 評価結果がユーザーに表示される
+
+### 問題生成フロー
+1. ユーザーが問題自動生成を要求（`ProblemsController#generate`）
+2. `ProblemGenerator`がLLM APIを使って問題を生成
+3. 生成された問題コードが`CodeEvaluator`で実行され、期待出力が計算される
+4. シンタックスエラーがある場合は問題が破棄される
+5. 問題が保存され、ユーザーに表示される
 
 ## 5. 拡張ポイント
 
