@@ -33,3 +33,23 @@ db
 Gemfile
 Rakefile
 README.md
+
+lib
+├── code_evaluator.rb
+
+spec
+├── lib
+│   └── code_evaluator_spec.rb
+
+app/controllers
+├── problems_controller.rb
+├── answers_controller.rb
+
+app/views/problems
+├── index.html.erb
+├── show.html.erb
+
+app/views/answers
+├── create.html.erb
+
+config/routes.rb
