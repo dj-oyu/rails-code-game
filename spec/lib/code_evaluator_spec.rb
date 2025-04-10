@@ -5,8 +5,26 @@ RSpec.describe CodeEvaluator do
   let(:expected_output) { "15" }
 
   it "成功: 出力が一致すればsuccess" do
-    user_code = "puts 15"
+    user_code = "puts 10 + 5"
     result = described_class.evaluate(user_code, expected_output, timeout_sec: 2)
+    expect(result[:result]).to eq("success")
+  end
+
+  it "ユーザーが期待出力と同じ整数リテラルだけをputsしたらfail" do
+    user_code = "puts 15"
+    result = described_class.evaluate(user_code, "15", timeout_sec: 2)
+    expect(result[:result]).to eq("fail")
+  end
+
+  it "ユーザーが期待出力と同じ文字列リテラルだけをputsしたらfail" do
+    user_code = 'puts "15"'
+    result = described_class.evaluate(user_code, "15", timeout_sec: 2)
+    expect(result[:result]).to eq("fail")
+  end
+
+  it "ユーザーが計算式をputsしたらsuccess" do
+    user_code = "puts 10 + 5"
+    result = described_class.evaluate(user_code, "15", timeout_sec: 2)
     expect(result[:result]).to eq("success")
   end
 

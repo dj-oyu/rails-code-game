@@ -11,6 +11,39 @@ class CodeEvaluator
     error_log = nil
     return_value = nil
 
+    # ユーザーコードが期待出力と一致する即値だけならfail
+    begin
+      require 'ripper'
+      sexp = Ripper.sexp(user_code)
+      if sexp.is_a?(Array) && sexp[0] == :program && sexp[1].is_a?(Array)
+        stmts = sexp[1]
+        if stmts.size == 1 && stmts[0].is_a?(Array) && stmts[0][0] == :command
+          cmd = stmts[0]
+          method_name = cmd[1][1] rescue nil
+          args_node = cmd[2]
+          if method_name == 'puts' && args_node && args_node[0] == :args_add_block
+            args = args_node[1]
+            if args.size == 1
+              arg = args[0]
+              # 整数リテラル
+              if arg.is_a?(Array) && arg[0] == :@int && arg[1].to_s.strip == expected_output.strip
+                return { result: "fail", output: "", return_value: nil, error_log: nil }
+              end
+              # 文字列リテラル
+              if arg.is_a?(Array) && arg[0] == :string_literal
+                str_content = arg[1][1][1] rescue nil
+                if str_content.to_s.strip == expected_output.strip
+                  return { result: "fail", output: "", return_value: nil, error_log: nil }
+                end
+              end
+            end
+          end
+        end
+      end
+    rescue => e
+      # 解析失敗時は何もしない
+    end
+
     begin
       Timeout.timeout(timeout_sec) do
         # 問題の初期コードを評価（変数・メソッド定義を反映）
