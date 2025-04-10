@@ -5,6 +5,43 @@
 <h2>お題コード</h2>
 <pre><%= @problem.initial_code %></pre>
 
+<div class="hint-section" style="margin-bottom: 20px; padding: 10px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px;">
+  <h3 style="margin-top: 0;">ヒント</h3>
+  
+  <% if @problem.expected_output.present? %>
+    <div style="margin-bottom: 10px;">
+      <strong>期待する出力:</strong> <code><%= @problem.expected_output %></code>
+    </div>
+  <% end %>
+  
+  <% if @available_symbols && (@available_symbols[:variables].any? || @available_symbols[:methods].any? || @available_symbols[:classes].any?) %>
+    <div>
+      <strong>利用可能な名前:</strong>
+      
+      <% if @available_symbols[:variables].any? %>
+        <div style="margin-left: 10px;">
+          <strong>変数:</strong>
+          <code><%= @available_symbols[:variables].join(", ") %></code>
+        </div>
+      <% end %>
+      
+      <% if @available_symbols[:methods].any? %>
+        <div style="margin-left: 10px;">
+          <strong>メソッド:</strong>
+          <code><%= @available_symbols[:methods].join(", ") %></code>
+        </div>
+      <% end %>
+      
+      <% if @available_symbols[:classes].any? %>
+        <div style="margin-left: 10px;">
+          <strong>クラス:</strong>
+          <code><%= @available_symbols[:classes].join(", ") %></code>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
 <h2>あなたの回答</h2>
 
 <!-- エラーメッセージ表示領域（固定高さ、スクロール可能） -->
@@ -15,6 +52,10 @@
   <h3>評価結果: <span id="result-status"></span></h3>
   <h4>出力:</h4>
   <pre id="result-output" style="max-height: 150px; overflow-y: auto; border: 1px solid #eee; background-color: #f9f9f9; padding: 10px;"></pre>
+  <div id="return-value-container" style="display: none;">
+    <h4>戻り値:</h4>
+    <pre id="result-return-value" style="max-height: 100px; overflow-y: auto; border: 1px solid #eee; background-color: #f9f9f9; padding: 10px;"></pre>
+  </div>
   <p><a href="<%= problems_path %>">お題一覧に戻る</a></p>
 </div>
 
@@ -31,6 +72,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const resultMessage = document.getElementById('result-message');
   const resultStatus = document.getElementById('result-status');
   const resultOutput = document.getElementById('result-output');
+  const returnValueContainer = document.getElementById('return-value-container');
+  const resultReturnValue = document.getElementById('result-return-value');
   
   form.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -62,6 +105,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // 正常に評価された場合
         resultStatus.textContent = data.result;
         resultOutput.textContent = data.output;
+        
+        // 戻り値の表示
+        if (data.return_value) {
+          resultReturnValue.textContent = data.return_value;
+          returnValueContainer.style.display = 'block';
+        } else {
+          returnValueContainer.style.display = 'none';
+        }
+        
         resultMessage.style.display = 'block';
       }
     })

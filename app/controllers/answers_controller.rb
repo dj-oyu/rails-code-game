@@ -6,7 +6,11 @@ class AnswersController < ApplicationController
     problem = Problem.find(params[:problem_id])
     user_code = params[:user_code]
 
-    result = CodeEvaluator.evaluate(user_code, problem.expected_output)
+    result = CodeEvaluator.evaluate(
+      user_code, 
+      problem.expected_output, 
+      initial_code: problem.initial_code
+    )
 
     answer = Answer.create!(
       problem: problem,
@@ -34,9 +38,18 @@ class AnswersController < ApplicationController
           end
         end
         
+        # 戻り値を文字列化
+        return_value_str = nil
+        begin
+          return_value_str = result[:return_value].inspect if result[:return_value]
+        rescue => e
+          return_value_str = "表示できません: #{e.message}"
+        end
+        
         render json: {
           result: result[:result],
           output: output,
+          return_value: return_value_str,
           answer_id: answer.id
         }
       end
@@ -54,9 +67,18 @@ class AnswersController < ApplicationController
             end
           end
           
+          # 戻り値を文字列化
+          return_value_str = nil
+          begin
+            return_value_str = result[:return_value].inspect if result[:return_value]
+          rescue => e
+            return_value_str = "表示できません: #{e.message}"
+          end
+          
           render json: {
             result: result[:result],
             output: output,
+            return_value: return_value_str,
             answer_id: answer.id
           }
         else

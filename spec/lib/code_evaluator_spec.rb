@@ -9,6 +9,20 @@ RSpec.describe CodeEvaluator do
     result = described_class.evaluate(user_code, expected_output, timeout_sec: 2)
     expect(result[:result]).to eq("success")
   end
+  
+  it "初期コードの変数が利用可能" do
+    initial_code = "x = 10; y = 5"
+    user_code = "puts x + y"
+    result = described_class.evaluate(user_code, "15", initial_code: initial_code, timeout_sec: 2)
+    expect(result[:result]).to eq("success")
+  end
+  
+  it "初期コードのメソッドが利用可能" do
+    initial_code = "def add(a, b); a + b; end"
+    user_code = "puts add(10, 5)"
+    result = described_class.evaluate(user_code, "15", initial_code: initial_code, timeout_sec: 2)
+    expect(result[:result]).to eq("success")
+  end
 
   it "失敗: 出力が違えばfail" do
     user_code = "puts 42"

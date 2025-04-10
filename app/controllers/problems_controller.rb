@@ -28,5 +28,9 @@ class ProblemsController < ApplicationController
 
   def show
     @problem = Problem.find(params[:id])
+    
+    # 問題コードから変数・メソッドを抽出
+    require 'code_parser'
+    @available_symbols = CodeParser.extract_symbols(@problem.initial_code)
   end
 end
