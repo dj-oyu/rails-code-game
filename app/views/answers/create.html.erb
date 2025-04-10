@@ -1,2 +1,6 @@
-<h1>Answers#create</h1>
-<p>Find me in app/views/answers/create.html.erb</p>
+<h1>評価結果: <%= @result[:result] %></h1>
+
+<h2>出力</h2>
+<pre><%= @result[:output] %></pre>
+
+<p><%= link_to "お題一覧に戻る", problems_path %></p>

@@ -1,2 +1,13 @@
-<h1>Problems#show</h1>
-<p>Find me in app/views/problems/show.html.erb</p>
+<h1><%= @problem.title %></h1>
+
+<p><%= simple_format(@problem.description) %></p>
+
+<h2>お題コード</h2>
+<pre><%= @problem.initial_code %></pre>
+
+<h2>あなたの回答</h2>
+<%= form_with url: answers_path, method: :post do |f| %>
+  <%= hidden_field_tag :problem_id, @problem.id %>
+  <%= f.text_area :user_code, rows: 10, cols: 80 %><br>
+  <%= f.submit "提出して評価" %>
+<% end %>

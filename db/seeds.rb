@@ -1,9 +1,14 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+Problem.create!(
+  title: "配列の合計を求めよ",
+  description: "forループで合計を計算するコードを短く書き直せ。標準出力に合計を出してください。",
+  initial_code: <<~RUBY,
+    arr = [1, 2, 3, 4, 5]
+    sum = 0
+    for n in arr
+      sum += n
+    end
+    puts sum
+  RUBY
+  test_code: "",
+  expected_output: "15"
+)
