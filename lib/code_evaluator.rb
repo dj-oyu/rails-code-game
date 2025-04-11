@@ -17,24 +17,49 @@ class CodeEvaluator
       sexp = Ripper.sexp(user_code)
       if sexp.is_a?(Array) && sexp[0] == :program && sexp[1].is_a?(Array)
         stmts = sexp[1]
-        if stmts.size == 1 && stmts[0].is_a?(Array) && stmts[0][0] == :command
-          cmd = stmts[0]
-          method_name = cmd[1][1] rescue nil
-          args_node = cmd[2]
-          if method_name == 'puts' && args_node && args_node[0] == :args_add_block
-            args = args_node[1]
-            if args.size == 1
-              arg = args[0]
-              # 整数リテラル
-              if arg.is_a?(Array) && arg[0] == :@int && arg[1].to_s.strip == expected_output.strip
-                return { result: "fail", output: "", return_value: nil, error_log: nil }
-              end
-              # 文字列リテラル
-              if arg.is_a?(Array) && arg[0] == :string_literal
-                str_content = arg[1][1][1] rescue nil
-                if str_content.to_s.strip == expected_output.strip
+        if stmts.size == 1
+          stmt = stmts[0]
+          # puts 即値 の場合
+          if stmt.is_a?(Array) && stmt[0] == :command
+            cmd = stmt
+            method_name = cmd[1][1] rescue nil
+            args_node = cmd[2]
+            if method_name == 'puts' && args_node && args_node[0] == :args_add_block
+              args = args_node[1]
+              if args.size == 1
+                arg = args[0]
+                # 整数リテラル
+                if arg.is_a?(Array) && arg[0] == :@int && arg[1].to_s.strip == expected_output.strip
                   return { result: "fail", output: "", return_value: nil, error_log: nil }
                 end
+                # 浮動小数点リテラル
+                if arg.is_a?(Array) && arg[0] == :@float && arg[1].to_s.strip == expected_output.strip
+                  return { result: "fail", output: "", return_value: nil, error_log: nil }
+                end
+                # 文字列リテラル
+                if arg.is_a?(Array) && arg[0] == :string_literal
+                  str_content = arg[1][1][1] rescue nil
+                  if str_content.to_s.strip == expected_output.strip
+                    return { result: "fail", output: "", return_value: nil, error_log: nil }
+                  end
+                end
+              end
+            end
+          # 即値のみ の場合
+          elsif stmt.is_a?(Array)
+            # 整数リテラル
+            if stmt[0] == :@int && stmt[1].to_s.strip == expected_output.strip
+              return { result: "fail", output: "", return_value: nil, error_log: nil }
+            end
+            # 浮動小数点リテラル
+            if stmt[0] == :@float && stmt[1].to_s.strip == expected_output.strip
+              return { result: "fail", output: "", return_value: nil, error_log: nil }
+            end
+            # 文字列リテラル
+            if stmt[0] == :string_literal
+              str_content = stmt[1][1][1] rescue nil
+              if str_content.to_s.strip == expected_output.strip
+                return { result: "fail", output: "", return_value: nil, error_log: nil }
               end
             end
           end
