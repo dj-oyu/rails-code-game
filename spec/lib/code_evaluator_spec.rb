@@ -10,6 +10,28 @@ RSpec.describe CodeEvaluator do
     expect(result[:result]).to eq("success")
   end
 
+  it "問題コードに実行時エラーがあれば問題破棄" do
+    # 実際にゼロ除算エラーが発生するコード
+    initial_code = "1/0"
+    
+    # 文字列リテラルチェックを回避するため、
+    # 期待出力と異なる文字列を出力するコードに変更
+    user_code = "puts 'different_output'"
+    
+    # 期待出力も変更して文字列リテラルチェックを回避
+    result = described_class.evaluate(user_code, "expected_but_different", initial_code: initial_code, timeout_sec: 2)
+    
+    # お題コードが実行時エラーを起こした場合は問題破棄
+    expect(result[:result]).to eq("error")
+    expect(result[:output]).to include("ZeroDivisionError")
+    expect(result[:error_log]).to be_a(String)
+    
+    error_log = JSON.parse(result[:error_log])
+    expect(error_log["error_type"]).to eq("problem_validation_error")
+    expect(error_log["error_class"]).to eq("ZeroDivisionError")
+    expect(error_log["initial_code"]).to eq(initial_code)
+  end
+
   it "ユーザーが期待出力と同じ整数リテラルだけをputsしたらfail" do
     user_code = "puts 15"
     result = described_class.evaluate(user_code, "15", timeout_sec: 2)

@@ -73,9 +73,26 @@ class CodeEvaluator
             # 解析失敗時は何もしない
           end
 
-          # 初期コードを評価（出力は捨てる）
-          capture_stdout_stderr do
-            eval(initial_code, binding)
+          # 初期コードを評価し、例外が出たら問題破棄
+          begin
+            capture_stdout_stderr do
+              eval(initial_code, binding)
+            end
+          rescue StandardError => e
+            # お題コードが実行時エラーを起こした場合は問題破棄
+            return {
+              result: "error",
+              output: "#{e.class}: #{e.message}",
+              return_value: nil,
+              error_log: {
+                error_type: "problem_validation_error",
+                error_class: e.class.to_s,
+                error_message: e.message,
+                backtrace: e.backtrace,
+                initial_code: initial_code,
+                timestamp: Time.now.iso8601
+              }.to_json
+            }
           end
         end
         
