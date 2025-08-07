@@ -85,6 +85,9 @@ class ProblemGenerator
 
     body = JSON.parse(res.body)
     content = body.dig("choices", 0, "message", "content")
+  puts "--- Content to be parsed: ---"
+  puts content.inspect
+  puts "-----------------------------"
     JSON.parse(content)
   end
   
@@ -93,7 +96,7 @@ class ProblemGenerator
     return [] unless defined?(Problem)
     
     # ランダムに問題を取得
-    problems = Problem.order("RANDOM()").limit(limit)
+    problems = Problem.order(:id).limit(limit)
     
     problems.map do |problem|
       {
