@@ -1,8 +1,8 @@
 source "https://rubygems.org"
 
-gem "sorbet", :group => :development
+gem "sorbet", group: :development
 gem "sorbet-runtime"
-gem "tapioca", require: false, :group => [:development, :test]
+gem "tapioca", require: false, group: [ :development, :test ]
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.2"

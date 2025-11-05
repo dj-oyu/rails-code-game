@@ -7,8 +7,8 @@ class AnswersController < ApplicationController
     user_code = params[:user_code]
 
     result = CodeEvaluator.evaluate(
-      user_code, 
-      problem.expected_output, 
+      user_code,
+      problem.expected_output,
       initial_code: problem.initial_code
     )
 
@@ -37,7 +37,7 @@ class AnswersController < ApplicationController
             output = "#{error_class}: #{error_message}"
           end
         end
-        
+
         # 戻り値を文字列化
         return_value_str = nil
         begin
@@ -45,7 +45,7 @@ class AnswersController < ApplicationController
         rescue => e
           return_value_str = "表示できません: #{e.message}"
         end
-        
+
         render json: {
           result: result[:result],
           output: output,
@@ -66,7 +66,7 @@ class AnswersController < ApplicationController
               output = "#{error_class}: #{error_message}"
             end
           end
-          
+
           # 戻り値を文字列化
           return_value_str = nil
           begin
@@ -74,7 +74,7 @@ class AnswersController < ApplicationController
           rescue => e
             return_value_str = "表示できません: #{e.message}"
           end
-          
+
           render json: {
             result: result[:result],
             output: output,

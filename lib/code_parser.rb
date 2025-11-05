@@ -1,4 +1,4 @@
-require 'ripper'
+require "ripper"
 
 class CodeParser
   # Rubyコードから変数とメソッドを抽出する
@@ -55,7 +55,7 @@ class CodeParser
   # putsの引数に含まれる変数を再帰抽出
   def self.extract_puts_inner_vars(node, arr)
     return unless node.is_a?(Array)
-    if node[0] == :command && node[1][1] == 'puts' && node[2][0] == :args_add_block
+    if node[0] == :command && node[1][1] == "puts" && node[2][0] == :args_add_block
       args = node[2][1]
       args.each do |arg|
         extract_inner_vars(arg, arr)
@@ -93,7 +93,7 @@ class CodeParser
     when :command
       # putsのようなメソッド呼び出し
       method_name = sexp[1][1] rescue nil
-      if method_name == 'puts' && sexp[2][0] == :args_add_block
+      if method_name == "puts" && sexp[2][0] == :args_add_block
         args = sexp[2][1]
         args.each do |arg|
           if arg.is_a?(Array) && arg[0] == :var_ref && arg[1][0] == :@ident
