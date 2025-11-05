@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
-  resources :problems, only: [:index, :show]
+  resources :problems, only: [ :index, :show ]
   post "problems/generate", to: "problems#generate", as: :generate_problem
-  resources :answers, only: [:create]
+  resources :answers, only: [ :create ]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

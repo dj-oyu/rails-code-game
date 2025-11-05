@@ -13,7 +13,7 @@ class CodeEvaluator
 
     # ユーザーコードが期待出力と一致する即値だけならfail
     begin
-      require 'ripper'
+      require "ripper"
       sexp = Ripper.sexp(user_code)
       if sexp.is_a?(Array) && sexp[0] == :program && sexp[1].is_a?(Array)
         stmts = sexp[1]
@@ -24,7 +24,7 @@ class CodeEvaluator
             cmd = stmt
             method_name = cmd[1][1] rescue nil
             args_node = cmd[2]
-            if method_name == 'puts' && args_node && args_node[0] == :args_add_block
+            if method_name == "puts" && args_node && args_node[0] == :args_add_block
               args = args_node[1]
               if args.size == 1
                 arg = args[0]
@@ -76,7 +76,7 @@ class CodeEvaluator
         if initial_code.present?
           # putsの引数変数を抽出し、ユーザーコード末尾でnil上書き
           begin
-            require_relative 'code_parser'
+            require_relative "code_parser"
             symbols = CodeParser.extract_symbols(initial_code)
             if symbols.is_a?(Hash)
               # putsの引数
@@ -86,7 +86,7 @@ class CodeEvaluator
                 end
               end
               # 末尾の変数評価は長いランダム文字列で上書き
-              require 'securerandom'
+              require "securerandom"
               if symbols[:tail_vars].is_a?(Array)
                 symbols[:tail_vars].each do |var|
                   rand_str = SecureRandom.hex(32)
@@ -120,7 +120,7 @@ class CodeEvaluator
             }
           end
         end
-        
+
         # 出力と戻り値を捕捉しつつユーザーコードを実行
         val = nil
         output = capture_stdout_stderr do
@@ -170,8 +170,8 @@ class CodeEvaluator
       }
     end
 
-    { 
-      result: result, 
+    {
+      result: result,
       output: output,
       return_value: return_value,
       error_log: (result == "error" || result == "syntax_error") ? error_log.to_json : nil

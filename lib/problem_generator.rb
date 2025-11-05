@@ -6,7 +6,7 @@ class ProblemGenerator
   def self.generate(prompt)
     endpoint = ENV["LLM_API_ENDPOINT"]
     token = ENV["LLM_API_TOKEN"]
-    
+
     # 既存の問題を例として取得（最大3件）
     existing_examples = get_existing_examples(3)
 
@@ -26,7 +26,7 @@ class ProblemGenerator
         initial_code: { type: "string" },
         expected_output: { type: "string" }
       },
-      required: ["title", "description", "initial_code", "expected_output"]
+      required: [ "title", "description", "initial_code", "expected_output" ]
     }
 
     # 既存問題の例を含むプロンプト作成
@@ -87,14 +87,14 @@ class ProblemGenerator
     content = body.dig("choices", 0, "message", "content")
     JSON.parse(content)
   end
-  
+
   # 既存の問題を取得するメソッド
   def self.get_existing_examples(limit = 3)
     return [] unless defined?(Problem)
-    
+
     # ランダムに問題を取得
     problems = Problem.order("RANDOM()").limit(limit)
-    
+
     problems.map do |problem|
       {
         title: problem.title,
