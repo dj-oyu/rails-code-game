@@ -2,7 +2,7 @@ require "rails_helper"
 require "problem_generator"
 
 RSpec.describe ProblemGenerator do
-  it "LLMから問題を自動生成できる" do
+  it "LLMから問題を自動生成できる", skip: ENV["LLM_API_ENDPOINT"].nil? ? "LLM_API_ENDPOINT not set" : false do
     result = described_class.generate("テスト用の問題を作成してください")
 
     expect(result).to be_a(Hash)

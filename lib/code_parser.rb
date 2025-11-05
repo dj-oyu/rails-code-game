@@ -3,11 +3,20 @@ require "ripper"
 class CodeParser
   # Rubyコードから変数とメソッドを抽出する
   def self.extract_symbols(code)
-    return [] if code.nil? || code.empty?
+    empty_result = {
+      variables: [],
+      methods: [],
+      classes: [],
+      puts_args: [],
+      tail_vars: [],
+      tail_vars_inner: [],
+      puts_inner_vars: []
+    }
+    return empty_result if code.nil? || code.empty?
 
     # Ripperを使ってコードをパース
     sexp = Ripper.sexp(code)
-    return [] unless sexp
+    return empty_result unless sexp
 
     # 変数とメソッドを格納する配列
     symbols = {
