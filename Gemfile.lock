@@ -161,10 +161,6 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.7-aarch64-linux-musl)
       racc (~> 1.4)
-    nokogiri (1.18.7-arm-linux-gnu)
-      racc (~> 1.4)
-    nokogiri (1.18.7-arm-linux-musl)
-      racc (~> 1.4)
     nokogiri (1.18.7-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.7-x86_64-darwin)
@@ -320,8 +316,6 @@ GEM
       thor (>= 0.19.2)
     sqlite3 (2.6.0-aarch64-linux-gnu)
     sqlite3 (2.6.0-aarch64-linux-musl)
-    sqlite3 (2.6.0-arm-linux-gnu)
-    sqlite3 (2.6.0-arm-linux-musl)
     sqlite3 (2.6.0-arm64-darwin)
     sqlite3 (2.6.0-x86_64-darwin)
     sqlite3 (2.6.0-x86_64-linux-gnu)
@@ -345,11 +339,10 @@ GEM
       thor (>= 1.2.0)
       yard-sorbet
     thor (1.3.2)
-    thruster (0.1.12)
-    thruster (0.1.12-aarch64-linux)
-    thruster (0.1.12-arm64-darwin)
-    thruster (0.1.12-x86_64-darwin)
-    thruster (0.1.12-x86_64-linux)
+    thruster (0.1.16-aarch64-linux)
+    thruster (0.1.16-arm64-darwin)
+    thruster (0.1.16-x86_64-darwin)
+    thruster (0.1.16-x86_64-linux)
     timeout (0.4.3)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -377,8 +370,6 @@ PLATFORMS
   aarch64-linux
   aarch64-linux-gnu
   aarch64-linux-musl
-  arm-linux-gnu
-  arm-linux-musl
   arm64-darwin
   x86_64-darwin
   x86_64-linux-gnu
